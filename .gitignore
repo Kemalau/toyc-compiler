@@ -1,0 +1,6 @@
+/compiler
+/build/
+/.venv/
+/.DS_Store
+/医学史/
+__pycache__/

@@ -1,0 +1,42 @@
+name: Linux build and tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    name: Linux Make and CMake 4.0.3
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Make build and tests
+        run: make test
+      - name: Install requested CMake version
+        run: python -m pip install cmake==4.0.3
+      - name: CMake build
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --parallel 2
+      - name: CMake tests
+        run: ctest --test-dir build --output-on-failure
+
+  riscv:
+    name: RISC-V64 machine code tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install optional test tools
+        run: python -m pip install -r tests/requirements.txt
+      - name: Compile, assemble, link, and emulate
+        run: make test-riscv
